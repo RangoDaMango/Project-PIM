@@ -2,7 +2,6 @@ from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 
 # Store usernames and rooms temporarily (in-memory)
@@ -38,4 +37,4 @@ def handle_disconnect():
         emit('receive_message', {'message': f'{user["username"]} has left the room.'}, room=user['room'])
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
