@@ -1,1 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Room</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+    /* Reset & Base */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
 
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #2f3136;
+        color: #f1f1f1;
+        padding: 20px;
+    }
+
+    h2 {
+        margin-bottom: 10px;
+    }
+
+    /* Join Form */
+    #joinBox {
+        max-width: 400px;
+        margin: 100px auto;
+        background-color: #36393f;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    #joinBox input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: none;
+        border-radius: 4px;
+        background-color: #202225;
+        color: #fff;
+    }
+
+    #joinBox button {
+        width: 100%;
+        padding: 10px;
+        background-color: #7289da;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    #joinBox button:hover {
+        background-color: #5b6eae;
+    }
+
+    /* Chat Box */
+    #chat {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #36393f;
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    #roomTitle {
+        text-align: center;
+        margin-bottom: 15px;
+        font-size: 18px;
+        color: #b9bbbe;
+    }
+
+    #messages {
+        list-style-type: none;
+        padding: 0;
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #444;
+        background-color: #2f3136;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+
+    #messages li {
+        padding: 8px 12px;
+        border-bottom: 1px solid #444;
+    }
+
+    #messageBox {
+        display: flex;
+        gap: 10px;
+    }
+
+    #messageInput {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        background-color: #202225;
+        color: #fff;
+    }
+
+    #messageBox button {
+        background-color: #7289da;
+        border: none;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    #messageBox button:hover {
+        background-color: #5b6eae;
+    }
+</style>
+
+</head>
+<body>
+
+    <div id="joinBox">
+        <h2>Join a Chat Room</h2>
+        <input id="usernameInput" placeholder="Username" />
+        <input id="roomInput" placeholder="Room name" />
+        <button onclick="joinRoom()">Join</button>
+    </div>
+
+    <div id="chat">
+        <h2 id="roomTitle">Room: </h2>
+        <ul id="messages"></ul>
+        <div id="messageBox">
+            <input id="messageInput" autocomplete="off" placeholder="Type a message..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        let username = "";
+        let room = "";
+
+        function joinRoom() {
+            username = document.getElementById('usernameInput').value.trim();
+            room = document.getElementById('roomInput').value.trim();
+            if (username && room) {
+                socket.emit('join', { username, room });
+                document.getElementById('joinBox').style.display = 'none';
+                document.getElementById('chat').style.display = 'block';
+                document.getElementById('messageBox').style.display = 'block';
+                document.getElementById('roomTitle').innerText = `Room: ${room}`;
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (message) {
+                socket.emit('send_message', { message });
+                input.value = '';
+            }
+        }
+
+        socket.on('receive_message', function(data) {
+            const messages = document.getElementById('messages');
+            const item = document.createElement('li');
+            item.textContent = data.message;
+            messages.appendChild(item);
+        });
+    </script>
+</body>
+</html>
