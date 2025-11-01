@@ -1,8 +1,13 @@
+# 1️⃣ Monkey-patch **before** any other imports
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
 app = Flask(__name__)
-socketio = SocketIO(app)
+# ⚡ Make sure to use eventlet explicitly
+socketio = SocketIO(app, async_mode='eventlet')
 
 # Store usernames and rooms temporarily (in-memory)
 users = {}
@@ -37,4 +42,5 @@ def handle_disconnect():
         emit('receive_message', {'message': f'{user["username"]} has left the room.'}, room=user['room'])
 
 if __name__ == '__main__':
+    # ⚡ Use eventlet explicitly here too
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)
