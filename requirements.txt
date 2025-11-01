@@ -1,2 +1,4 @@
-fastapi
-uvicorn[standard]
+flask
+flask-socketio
+eventlet
+gunicorn
