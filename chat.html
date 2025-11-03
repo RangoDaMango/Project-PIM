@@ -138,37 +138,47 @@
     </div>
 
     <script>
-        const socket = io();
-        let username = "";
-        let room = "";
+    const socket = io();
+    let username = "";
+    let room = "";
 
-        function joinRoom() {
-            username = document.getElementById('usernameInput').value.trim();
-            room = document.getElementById('roomInput').value.trim();
-            if (username && room) {
-                socket.emit('join', { username, room });
-                document.getElementById('joinBox').style.display = 'none';
-                document.getElementById('chat').style.display = 'block';
-                document.getElementById('messageBox').style.display = 'block';
-                document.getElementById('roomTitle').innerText = `Room: ${room}`;
-            }
+    function joinRoom() {
+        username = document.getElementById('usernameInput').value.trim();
+        room = document.getElementById('roomInput').value.trim();
+        if (username && room) {
+            socket.emit('join', { username, room });
+            document.getElementById('joinBox').style.display = 'none';
+            document.getElementById('chat').style.display = 'block';
+            document.getElementById('messageBox').style.display = 'block';
+            document.getElementById('roomTitle').innerText = `Room: ${room}`;
         }
+    }
 
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            if (message) {
-                socket.emit('send_message', { message });
-                input.value = '';
-            }
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+        if (message) {
+            socket.emit('send_message', { message });
+            input.value = '';
         }
+    }
 
-        socket.on('receive_message', function(data) {
-            const messages = document.getElementById('messages');
-            const item = document.createElement('li');
-            item.textContent = data.message;
-            messages.appendChild(item);
-        });
-    </script>
+    // Listen for Enter key press
+    document.getElementById('messageInput').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent form submission or newline
+            sendMessage();
+        }
+    });
+
+    socket.on('receive_message', function(data) {
+        const messages = document.getElementById('messages');
+        const item = document.createElement('li');
+        item.textContent = data.message;
+        messages.appendChild(item);
+    });
+</script>
+
 </body>
 </html>
+
