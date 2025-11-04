@@ -79,7 +79,13 @@ def handle_send_message(data):
             if len(parts) < 3:
                 emit('receive_message', {'username': 'System', 'message': 'Usage: /prank <name> <message>'}, room=request.sid)
                 return
-
+        elif command == '/sys' and len(parts) > 1:
+            sys_msg = parts[1].strip()
+            if not sys_msg:
+                emit('receive_message', {'username':'System','message':'Usage: /sys <text>'}, room=request.sid)
+                return
+            emit('receive_message', {'username':'System','message':sys_msg}, room=room)
+            return
             target_name = parts[1].strip()
             prank_text = parts[2].strip()
 
@@ -137,4 +143,5 @@ def emit_user_and_room_updates(room):
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+
 
