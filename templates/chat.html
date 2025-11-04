@@ -50,6 +50,13 @@
       background-color: #5b6eae;
     }
 
+    #sidePanel {
+      width: 200px;
+      background-color: #36393f;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
     #sidePanel h3 {
       margin-top: 20px;
       margin-bottom: 8px;
@@ -80,6 +87,7 @@
       background-color: #36393f;
       padding: 20px;
       border-radius: 8px;
+      flex-grow: 1;
     }
 
     #roomTitle {
@@ -127,21 +135,20 @@
 <body>
 
   <div id="joinBox">
-    <centre>
-    <h2>Project Pim</h2></centre>
+    <center><h2>Project Pim</h2></center>
     <input type="text" id="username" placeholder="Enter your name">
     <input type="text" id="room" placeholder="Enter room name">
     <button onclick="joinRoom()">Join</button>
+  </div>
 
+  <div id="container" style="display:none;">
     <div id="sidePanel">
       <h3>Available Rooms</h3>
       <ul id="rooms"></ul>
       <h3>Active Users</h3>
       <ul id="users"></ul>
     </div>
-  </div>
 
-  <div id="container" style="display:none;">
     <div id="chat">
       <h2 id="roomTitle"></h2>
       <div id="messages"></div>
@@ -175,8 +182,7 @@
       document.getElementById('messageInput').focus();
 
       socket.emit('join', { username, room });
-      socket.emit('get_users', { room });
-      socket.emit('get_rooms');
+      refreshLists();
     }
 
     function sendMessage() {
@@ -187,6 +193,11 @@
       msgInput.value = '';
     }
 
+    function refreshLists() {
+      socket.emit('get_users', { room: currentRoom });
+      socket.emit('get_rooms');
+    }
+
     socket.on('receive_message', data => {
       const messages = document.getElementById('messages');
       const msgElem = document.createElement('div');
@@ -195,7 +206,7 @@
       messages.appendChild(msgElem);
       messages.scrollTop = messages.scrollHeight;
 
-      if (currentRoom) socket.emit('get_users', { room: currentRoom });
+      refreshLists();
     });
 
     socket.on('user_list', data => {
@@ -211,9 +222,12 @@
       }).join('');
     });
 
-    // Request initial data on load
+    // Initial fetch
     socket.emit('get_rooms');
     socket.emit('get_users', { room: null });
+
+    // Periodic refresh
+    setInterval(refreshLists, 10000);
   </script>
 </body>
 </html>
