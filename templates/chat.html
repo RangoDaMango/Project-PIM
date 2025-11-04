@@ -159,6 +159,14 @@
     const socket = io();
     let currentRoom = null;
 
+    // Attach Enter key listener globally
+    document.getElementById('messageInput').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+
     function joinRoom() {
         const username = document.getElementById('username').value.trim();
         const room = document.getElementById('room').value.trim();
@@ -166,14 +174,11 @@
         if (!username || !room) return alert("Please enter username and room name.");
 
         currentRoom = room;
-            document.getElementById('messageInput').addEventListener('keydown', function(event) {
-        if (event.key == 'Enter') {
-            event.preventDefault(); // Prevent form submission or newline
-            sendMessage();}}
 
         document.getElementById('joinBox').style.display = 'none';
         document.getElementById('container').style.display = 'flex';
         document.getElementById('roomTitle').innerText = `Room: ${room}`;
+        document.getElementById('messageInput').focus();
 
         socket.emit('join', { username, room });
         socket.emit('get_users', { room });
@@ -191,7 +196,8 @@
     socket.on('receive_message', data => {
         const messages = document.getElementById('messages');
         const msgElem = document.createElement('div');
-        msgElem.textContent = data.message;
+        const timestamp = new Date().toLocaleTimeString();
+        msgElem.textContent = `[${timestamp}] ${data.message}`;
         messages.appendChild(msgElem);
         messages.scrollTop = messages.scrollHeight;
 
