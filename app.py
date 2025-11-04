@@ -68,7 +68,11 @@ def handle_send_message(data):
         elif command == '/shrug':
             emit('receive_message', {'username': username, 'message': '¯\\_(ツ)_/¯'}, room=room)
             return
-
+        elif command == '/rainbow' and len(parts) > 1:
+            target_name = parts[1].lstrip('@')
+            color = f"hsl({random.randint(0,360)},80%,60%)"
+            emit('receive_message', {'username':target_name,'message':'🌈 Rainbow mode!','prank':True,'color_override':color}, room=room)
+            return
         # 🧩 /prank <targetName> <message>
         elif command == '/prank':
             # basic parsing
@@ -133,3 +137,4 @@ def emit_user_and_room_updates(room):
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+
